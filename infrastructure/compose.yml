@@ -1,0 +1,61 @@
+name: wordpress-infrastructure
+
+services:
+  mariadb:
+    image: mariadb:12.1
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Set MARIADB_ROOT_PASSWORD in infrastructure/.env}
+      MARIADB_AUTO_UPGRADE: "1"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=${MARIADB_INNODB_BUFFER_POOL_SIZE:-256M}
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    networks:
+      wordpress-backend:
+        aliases:
+          - wordpress-db
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --databases
+      - "256"
+    volumes:
+      - ./redis:/data
+    networks:
+      wordpress-backend:
+        aliases:
+          - wordpress-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  wordpress-backend:
+    name: wordpress-backend
