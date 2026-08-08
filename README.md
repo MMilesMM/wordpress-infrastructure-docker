@@ -30,7 +30,6 @@ The database and Redis containers are not published to the host network. WordPre
 
 ## Requirements
 
-- Linux server
 - Docker Engine
 - Docker Compose v2 (`docker compose`)
 - `openssl`, `sed`, `grep`, `ss`, `tar`, `gzip`
@@ -38,7 +37,7 @@ The database and Redis containers are not published to the host network. WordPre
 ## Quick start
 
 ```bash
-git clone <YOUR-REPOSITORY-URL> /opt/wordpress
+git clone https://github.com/MMilesMM/wordpress-infrastructure-docker/ /opt/wordpress
 cd /opt/wordpress
 
 ./scripts/init.sh
@@ -68,17 +67,6 @@ Site created successfully.
 ```
 
 Then configure your reverse proxy to forward `example.de` to `127.0.0.1:3000`.
-
-## Publish this repository to GitHub
-
-If the GitHub CLI is installed and authenticated:
-
-```bash
-gh auth login
-./scripts/publish-github.sh wordpress-multi-docker public
-```
-
-The script creates the GitHub repository, adds it as `origin`, and pushes the existing `main` branch.
 
 ## Create another site
 
